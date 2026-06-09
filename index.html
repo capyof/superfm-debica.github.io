@@ -280,8 +280,8 @@
                 .then(data => {
                     if (data && data.now_playing && data.now_playing.song) {
                         const song = data.now_playing.song;
-                        trackTitle.innerText = song.title || "Live Stream";
-                        trackArtist.innerText = song.artist || "ON AIR";
+                        trackTitle.innerText = song.title || "Nie można załadować tytułu";
+                        trackArtist.innerText = song.artist || "Nie można załadować artysty";
                         if (song.art) {
                             trackCover.src = song.art;
                         } else {
