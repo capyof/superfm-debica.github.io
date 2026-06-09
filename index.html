@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SuperFM Dębica</title>
+    <title>SUPER 97.5FM - Player</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="favicon.png">
     
     <style>
-        /* --- RESET I GŁÓWNE STYLE PRZEŁĄCZNIKA --- */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -26,7 +24,6 @@
             overflow-x: hidden;
         }
 
-        /* Pasek wyboru motywu na górze ekranu */
         .theme-selector {
             display: flex;
             gap: 10px;
@@ -48,7 +45,6 @@
             font-weight: 600;
             background: transparent;
             color: #ccc;
-            transition: all 0.2s;
         }
 
         .theme-btn.active {
@@ -56,25 +52,29 @@
             color: #000;
         }
 
-        /* --- BAZOWA KARTA ODTWARZACZA --- */
         .player-card {
             width: 100%;
-            max-width: 400px;
+            max-width: 440px;
             text-align: center;
+            z-index: 5;
         }
 
+        /* NAPRAWA LOGO: Wymuszenie max szerokości, żeby nie rozpychało karty */
         .cover-wrapper {
-            margin: 0 auto 25px auto;
+            width: 100%;
+            height: auto;
             display: flex;
             justify-content: center;
             align-items: center;
-            max-width: 100%; /* Zapobiega wychodzeniu poza kartę */
+            margin: 0 auto 25px auto;
         }
 
         .cover-art {
-            max-width: 100%;
-            height: auto;
-            display: block;
+            width: 100% !important;
+            max-width: 320px !important;
+            height: auto !important;
+            display: block !important;
+            object-fit: contain !important;
         }
 
         .play-btn {
@@ -96,120 +96,42 @@
             display: block;
         }
 
-        /* Nowe miejsce na nazwę stacji */
         .station-footer {
             width: 100%;
             text-transform: uppercase;
         }
 
-
-        /* ==========================================================================
-           1. STYL: NOWOCZESNY MINIMALIZM (theme-modern)
-           ========================================================================== */
-        body.theme-modern {
-            background: radial-gradient(circle at top right, #1a1c24, #08090c);
-            font-family: 'Inter', sans-serif;
-        }
-        .theme-modern .player-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 35px 35px 25px 35px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
-        }
-        /* Zamiast sztywnego kwadratu 200x200 robimy elastyczny kontener */
-        .theme-modern .cover-wrapper { 
-            width: 100% !important; 
-            max-width: 320px !important; /* Pozwoli logo na ładne rozłożenie się */
-            height: auto !important; 
-            margin: 0 auto 25px auto !important; 
-        }
-        .theme-modern .cover-art { 
-            width: 100% !important; 
-            height: auto !important; 
-            border-radius: 12px !important; 
-            object-fit: contain !important; 
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important; 
-        }
+        /* 1. MODERN */
+        body.theme-modern { background: radial-gradient(circle at top right, #1a1c24, #08090c); font-family: 'Inter', sans-serif; }
+        .theme-modern .player-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 35px 35px 25px 35px; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4); }
+        .theme-modern .cover-art { border-radius: 8px; }
         .theme-modern .track-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .theme-modern .track-artist { font-size: 0.95rem; color: #00f2fe; font-weight: 500; margin-bottom: 30px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .theme-modern .play-btn { background: #fff; width: 64px; height: 64px; border-radius: 50%; margin-bottom: 30px; box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15); }
         .theme-modern .play-btn svg { width: 24px; height: 24px; fill: #08090c; }
         .theme-modern .visualizer-container { height: 60px; background: rgba(0, 0, 0, 0.15); border-radius: 12px; margin-bottom: 25px; }
-        /* Stopka modern */
         .theme-modern .station-footer { font-size: 0.75rem; font-weight: 600; color: rgba(255, 255, 255, 0.3); border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 20px; letter-spacing: 2px; }
 
-
-        /* ==========================================================================
-           2. STYL: RETRO SYNTHWAVE (theme-retro)
-           ========================================================================== */
-        body.theme-retro {
-            background-color: #0b0514;
-            background-image: linear-gradient(rgba(255, 0, 128, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 0, 128, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
-            font-family: 'Orbitron', sans-serif;
-        }
-        .theme-retro .player-card {
-            background: #120924;
-            border: 3px solid #ff007f;
-            border-radius: 4px;
-            padding: 30px;
-            box-shadow: 0 0 25px rgba(255, 0, 127, 0.4);
-        }
-        .theme-retro .cover-wrapper { 
-            width: 100% !important; 
-            max-width: 320px !important; 
-            height: auto !important;
-            border: 2px solid #00f2fe !important; 
-            padding: 4px !important; 
-            background: #000 !important; 
-            margin: 0 auto 25px auto !important;
-        }
+        /* 2. RETRO */
+        body.theme-retro { background-color: #0b0514; background-image: linear-gradient(rgba(255, 0, 128, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 0, 128, 0.05) 1px, transparent 1px); background-size: 40px 40px; font-family: 'Orbitron', sans-serif; }
+        .theme-retro .player-card { background: #120924; border: 3px solid #ff007f; border-radius: 4px; padding: 30px; box-shadow: 0 0 25px rgba(255, 0, 127, 0.4); }
+        .theme-retro .cover-wrapper { border: 2px solid #00f2fe; padding: 6px; background: #000; }
         .theme-retro .track-title { font-size: 1.1rem; color: #00f2fe; text-shadow: 0 0 8px rgba(0, 242, 254, 0.6); margin-bottom: 6px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .theme-retro .track-artist { font-size: 0.85rem; color: #ff007f; text-shadow: 0 0 8px rgba(255, 0, 127, 0.6); margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .theme-retro .play-btn { background: transparent; border: 2px solid #ff007f; color: #ff007f; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 700; padding: 12px 30px; text-transform: uppercase; margin-bottom: 25px; }
         .theme-retro .play-btn:hover { background: #ff007f; color: #120924; }
         .theme-retro .visualizer-container { height: 70px; background: #000; border: 2px solid #331a54; padding: 8px; margin-bottom: 25px; }
-        /* Stopka retro */
         .theme-retro .station-footer { font-size: 0.8rem; font-weight: 900; color: #9b51e0; text-shadow: 0 0 5px rgba(155, 81, 224, 0.6); border-top: 2px dashed #331a54; padding-top: 20px; letter-spacing: 3px; }
 
-
-        /* ==========================================================================
-           3. STYL: 8-BIT PIXEL ART (theme-pixel)
-           ========================================================================== */
-        body.theme-pixel {
-            background-color: #181425;
-            background-image: linear-gradient(45deg, #26213a 25%, transparent 25%, transparent 75%, #26213a 75%, #26213a), linear-gradient(45deg, #26213a 25%, #181425 25%, #181425 75%, #26213a 75%, #26213a);
-            background-size: 16px 16px;
-            background-position: 0 0, 8px 8px;
-            font-family: 'Press Start 2P', monospace;
-            image-rendering: pixelated;
-        }
-        .theme-pixel .player-card {
-            background: #2c2c2c;
-            border: 4px solid #000;
-            box-shadow: inset -4px -4px 0px #1a1a1a, inset 4px 4px 0px #4a4a4a, 8px 8px 0px rgba(0, 0, 0, 0.4);
-            padding: 24px;
-            max-width: 360px;
-        }
-        .theme-pixel .cover-wrapper { 
-            width: 100% !important; 
-            max-width: 260px !important; 
-            height: auto !important; 
-            background: #111 !important; 
-            border: 4px solid #000 !important; 
-            box-shadow: inset -4px -4px 0px #333, inset 4px 4px 0px #000 !important; 
-            padding: 8px !important; 
-            margin: 0 auto 20px auto !important;
-        }
+        /* 3. PIXEL */
+        body.theme-pixel { background-color: #181425; background-image: linear-gradient(45deg, #26213a 25%, transparent 25%, transparent 75%, #26213a 75%, #26213a), linear-gradient(45deg, #26213a 25%, #181425 25%, #181425 75%, #26213a 75%, #26213a); background-size: 16px 16px; background-position: 0 0, 8px 8px; font-family: 'Press Start 2P', monospace; image-rendering: pixelated; }
+        .theme-pixel .player-card { background: #2c2c2c; border: 4px solid #000; box-shadow: inset -4px -4px 0px #1a1a1a, inset 4px 4px 0px #4a4a4a, 8px 8px 0px rgba(0, 0, 0, 0.4); padding: 24px; }
+        .theme-pixel .cover-wrapper { background: #111; border: 4px solid #000; box-shadow: inset -4px -4px 0px #333, inset 4px 4px 0px #000; padding: 8px; }
         .theme-pixel .track-title { font-size: 8px; color: #ffca51; margin-bottom: 8px; text-transform: uppercase; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .theme-pixel .track-artist { font-size: 7px; color: #ff3e3e; margin-bottom: 24px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .theme-pixel .play-btn { font-family: 'Press Start 2P', monospace; font-size: 9px; background: #5ac54f; color: #fff; border: 4px solid #000; box-shadow: inset -4px -4px 0px #368628, inset 4px 4px 0px #86e07b; padding: 12px 24px; text-transform: uppercase; margin-bottom: 24px; }
         .theme-pixel .play-btn:active { box-shadow: inset 4px 4px 0px #368628, inset -4px -4px 0px #86e07b; }
         .theme-pixel .visualizer-container { height: 48px; background: #000; border: 4px solid #000; padding: 4px; margin-bottom: 20px; }
-        /* Stopka pixel */
         .theme-pixel .station-footer { font-size: 7px; color: #fff; background: #000; border: 4px solid #000; box-shadow: inset -4px -4px 0px #222; padding: 10px 4px; line-height: 1; }
     </style>
 </head>
@@ -224,7 +146,7 @@
 
     <div class="player-card">
         <div class="cover-wrapper">
-            <img src="30152.png">
+            <img src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=500&auto=format&fit=crop&q=60" alt="Radio Logo" class="cover-art" id="cover">
         </div>
 
         <div class="track-title" id="title">Ładowanie...</div>
@@ -240,16 +162,14 @@
             <canvas id="visualizer"></canvas>
         </div>
 
-        <div class="station-footer" id="stationName">SuperFM Dębica</div>
+        <div class="station-footer" id="stationName">SUPER 97.5FM</div>
     </div>
 
     <script>
         // ==========================================
-        //  KONFIGURACJA STRUMIENIA, API I NAZWY
+        //         USTAW SWÓJ STRUMIEŃ TUTAJ
         // ==========================================
         const STREAM_URL = "https://superfm-debica.loophole.site/listen/superfm-debica/radio.mp3"; 
-        const API_URL = "https://superfm-debica.loophole.site/api/nowplaying/1"; 
-        const STATION_NAME = "SUPERFM DĘBICA";
 
         let currentTheme = 'modern';
         const playButton = document.getElementById('playButton');
@@ -262,59 +182,49 @@
         const trackCover = document.getElementById('cover');
         const stationFooter = document.getElementById('stationName');
 
-        // Załadowanie nazwy stacji do stopki od razu po otwarciu strony
-        stationFooter.innerText = STATION_NAME;
-
-        const DEFAULT_COVER = "30152.png";
-
         let audio, audioCtx, analyser, source, bufferLength, dataArray;
         let isPlaying = false;
         let isInitialized = false;
 
-        // --- FUNKCJA POBIERANIA TYTUŁÓW LIVE (API) ---
-// --- FUNKCJA POBIERANIA TYTUŁÓW LIVE (API) ---
-        function updateMetadata() {
-            // Używamy standardowego fetch, ale dodajemy wymuszenie nagłówków, które akceptuje GitHub
-            fetch(API_URL, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Błąd serwera: " + response.status);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data && data.now_playing && data.now_playing.song) {
-                    const song = data.now_playing.song;
-                    
-                    // Bezpieczne wstawianie tekstu (zapobiega zawieszeniu strony)
-                    trackTitle.innerText = song.title ? song.title : "Live Stream";
-                    trackArtist.innerText = song.artist ? song.artist : "ON AIR";
-                    
-                    // Ładowanie okładki
-                    if (song.art && song.art !== "") {
-                        trackCover.src = song.art;
-                    } else {
-                        trackCover.src = DEFAULT_COVER;
-                    }
-                }
-            })
-            .catch(err => {
-                console.error("Błąd pobierania danych:", err);
-                // Jeśli jest błąd, strona nie wiesza się, tylko pokazuje domyślny tekst
-                trackTitle.innerText = "Super FM";
-                trackArtist.innerText = "NA ŻYWO";
-                trackCover.src = DEFAULT_COVER;
-            });
-        }
-        updateMetadata();
-        setInterval(updateMetadata, 10000);
+        // --- BEZBŁĘDNE UTWORZENIE SUBSKRYPCJI LIVE (OMINĘCIE CORS) ---
+        // Wykorzystujemy SSE (Server-Sent Events) z AzuraCast, które GitHub w pełni akceptuje!
+        function initLiveMetadata() {
+            const sseUrl = "https://superfm-debica.loophole.site/api/live/nowplaying/1";
+            const sourceEvent = new EventSource(sseUrl);
 
-        // --- OBSŁUGA MOTYWÓW ---
+            sourceEvent.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data && data.now_playing && data.now_playing.song) {
+                        const song = data.now_playing.song;
+                        trackTitle.innerText = song.title || "Live Stream";
+                        trackArtist.innerText = song.artist || "ON AIR";
+                        
+                        // Jeśli w API zmieni się okładka, załaduje się. 
+                        // Jeśli nie, pozostanie Twoje główne logo.
+                        if (song.art && song.art !== "") {
+                            trackCover.src = song.art;
+                        }
+                    }
+                    if (data && data.station && data.station.name) {
+                        stationFooter.innerText = data.station.name;
+                    }
+                } catch(e) {
+                    console.error("Błąd parsowania danych live:", e);
+                }
+            };
+
+            sourceEvent.onerror = function() {
+                // W razie problemów z siecią, ustawiamy teksty awaryjne, by odtwarzacz działał
+                trackTitle.innerText = "SUPER FM DĘBICA";
+                trackArtist.innerText = "NA ŻYWO!";
+            };
+        }
+
+        // Uruchomienie subskrypcji live
+        initLiveMetadata();
+
+        // --- MOTYWY ---
         function setTheme(themeName) {
             currentTheme = themeName;
             document.body.className = '';
@@ -358,7 +268,6 @@
             isInitialized = true;
         }
 
-        // --- PĘTLA RYSOWANIA WIZUALIZERA ---
         function draw() {
             if (!isPlaying) return;
             requestAnimationFrame(draw);
