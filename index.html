@@ -248,10 +248,8 @@
         //  KONFIGURACJA STRUMIENIA, API I NAZWY
         // ==========================================
         const STREAM_URL = "https://superfm-debica.loophole.site/listen/superfm-debica/radio.mp3"; 
-        const API_URL = "https://cors-anywhere.herokuapp.com/https://superfm-debica.loophole.site/api/nowplaying/1"; 
-        
-        // WPISZ TUTAJ NAZWĘ SWOJEJ STACJI (np. "Retro FM", "Pixel Radio" itp.)
-        const STATION_NAME = "SuperFM Dębica"; 
+        const API_URL = "https://superfm-debica.loophole.site/api/nowplaying/1"; 
+        const STATION_NAME = "SUPERFM DĘBICA";
 
         let currentTheme = 'modern';
         const playButton = document.getElementById('playButton');
@@ -274,28 +272,45 @@
         let isInitialized = false;
 
         // --- FUNKCJA POBIERANIA TYTUŁÓW LIVE (API) ---
+// --- FUNKCJA POBIERANIA TYTUŁÓW LIVE (API) ---
         function updateMetadata() {
-            fetch(API_URL)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.now_playing && data.now_playing.song) {
-                        const song = data.now_playing.song;
-                        trackTitle.innerText = song.title || "Nie można załadować tytułu";
-                        trackArtist.innerText = song.artist || "Nie można załadować artysty";
-                        if (song.art) {
-                            trackCover.src = song.art;
-                        } else {
-                            trackCover.src = DEFAULT_COVER;
-                        }
+            // Używamy standardowego fetch, ale dodajemy wymuszenie nagłówków, które akceptuje GitHub
+            fetch(API_URL, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Błąd serwera: " + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.now_playing && data.now_playing.song) {
+                    const song = data.now_playing.song;
+                    
+                    // Bezpieczne wstawianie tekstu (zapobiega zawieszeniu strony)
+                    trackTitle.innerText = song.title ? song.title : "Live Stream";
+                    trackArtist.innerText = song.artist ? song.artist : "ON AIR";
+                    
+                    // Ładowanie okładki
+                    if (song.art && song.art !== "") {
+                        trackCover.src = song.art;
+                    } else {
+                        trackCover.src = DEFAULT_COVER;
                     }
-                })
-                .catch(err => {
-                    console.error("Błąd API AzuraCast:", err);
-                    trackTitle.innerText = "Live Stream";
-                    trackArtist.innerText = "ON AIR";
-                });
+                }
+            })
+            .catch(err => {
+                console.error("Błąd pobierania danych:", err);
+                // Jeśli jest błąd, strona nie wiesza się, tylko pokazuje domyślny tekst
+                trackTitle.innerText = "Super FM";
+                trackArtist.innerText = "NA ŻYWO";
+                trackCover.src = DEFAULT_COVER;
+            });
         }
-
         updateMetadata();
         setInterval(updateMetadata, 10000);
 
