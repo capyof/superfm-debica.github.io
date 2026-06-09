@@ -118,8 +118,22 @@
             padding: 35px 35px 25px 35px;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
         }
-        .theme-modern .cover-wrapper { width: 200px; height: 200px; }
-        .theme-modern .cover-art { border-radius: 16px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5); }
+        /* Zamiast sztywnego kwadratu 200x200 robimy elastyczny kontener */
+        .theme-modern .cover-wrapper { 
+            width: 100%; 
+            max-width: 280px; /* Maksymalna szerokość logo wewnątrz karty */
+            height: auto; 
+            margin: 0 auto 25px auto;
+        }
+
+/* Sprawiamy, że grafika dopasowuje się idealnie i nie rozciąga pionowo */
+        .theme-modern .cover-art { 
+            width: 100%;
+            height: auto;
+            border-radius: 12px; 
+            object-fit: contain; /* Gwarantuje zachowanie właściwych proporcji logo */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); 
+        }
         .theme-modern .track-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .theme-modern .track-artist { font-size: 0.95rem; color: #00f2fe; font-weight: 500; margin-bottom: 30px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .theme-modern .play-btn { background: #fff; width: 64px; height: 64px; border-radius: 50%; margin-bottom: 30px; box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15); }
