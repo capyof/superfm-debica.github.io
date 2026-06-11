@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUPER 97.5FM - Player</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+            z-index: 10;
+            background: rgba(0,0,0,0.4);
+            padding: 8px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .theme-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: transparent;
+            color: #ccc;
+        }
+
+        .theme-btn.active {
+            background: #fff;
+            color: #000;
+        }
+
+        .player-card {
+            width: 100%;
+            max-width: 440px;
+            text-align: center;
+            z-index: 5;
+        }
+
+        .cover-wrapper {
+            width: 100%;
+            height: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 25px auto;
+        }
+
+        .cover-art {
+            width: 100% !important;
+            max-width: 320px !important;
+            height: auto !important;
+            display: block !important;
+            object-fit: contain !important;
+        }
+
+        /* Układ informacji o utworze i przycisku kopiowania */
+        .track-info-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 6px;
+            max-width: 100%;
+            padding: 0 20px;
+        }
+
+        .track-text {
+            overflow: hidden;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        /* Przycisk kopiowania */
+        .copy-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            flex-shrink: 0;
+        }
+
+        .copy-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: rgba(255,255,255,0.6);
+            transition: fill 0.2s, transform 0.2s;
+        }
+
+        .copy-btn:hover svg { 
+            fill: #00f2fe; 
+            transform: scale(1.1); 
+        }
+        
+        .copy-btn.copied svg { 
+            fill: #5ac54f !important; 
+        }
+
+        .play-btn {
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quality-selector-container {
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        #qualitySelect {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+            outline: none;
+        }
+
+        #qualitySelect option {
+            background: #1a1c24;
+            color: #fff;
+        }
+
+        /* Pasek głośności */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px auto 25px auto;
+            max-width: 200px;
+        }
+
+        .volume-icon {
+            width: 18px;
+            height: 18px;
+            fill: rgba(255,255,255,0.5);
+        }
+
+        #volumeSlider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #volumeSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .visualizer-container {
+            width: 100%;
+            overflow: hidden;
+        }
+
+        #visualizer {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .station-footer {
+            width: 100%;
+            text-transform: uppercase;
+        }
+
+        .station-warning {
+            color: #ff3e3e !important;
+            font-size: 0.85em;
+            margin-top: 8px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* 1. MODERN */
+        body.theme-modern { background: radial-gradient(circle at top right, #1a1c24, #08090c); font-family: 'Inter', sans-serif; }
+        .theme-modern .player-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 35px 35px 25px 35px; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4); }
+        .theme-modern .cover-art { border-radius: 8px; }
+        .theme-modern .track-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .theme-modern .track-artist { font-size: 0.95rem; color: #00f2fe; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .theme-modern .play-btn { background: #fff; width: 64px; height: 64px; border-radius: 50%; box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15); }
+        .theme-modern .play-btn svg { width: 24px; height: 24px; fill: #08090c; }
+        .theme-modern .visualizer-container { height: 60px; background: rgba(0, 0, 0, 0.15); border-radius: 12px; margin-bottom: 25px; }
+        .theme-modern .station-footer { font-size: 0.75rem; font-weight: 600; color: rgba(255, 255, 255, 0.3); border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 20px; letter-spacing: 2px; }
+
+        /* 2. RETRO */
+        body.theme-retro { background-color: #0b0514; background-image: linear-gradient(rgba(255, 0, 128, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 0, 128, 0.05) 1px, transparent 1px); background-size: 40px 40px; font-family: 'Orbitron', sans-serif; }
+        .theme-retro .player-card { background: #120924; border: 3px solid #ff007f; border-radius: 4px; padding: 30px; box-shadow: 0 0 25px rgba(255, 0, 127, 0.4); }
+        .theme-retro .cover-wrapper { border: 2px solid #00f2fe; padding: 6px; background: #000; }
+        .theme-retro .track-title { font-size: 1.1rem; color: #00f2fe; text-shadow: 0 0 8px rgba(0, 242, 254, 0.6); margin-bottom: 6px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .theme-retro .track-artist { font-size: 0.85rem; color: #ff007f; text-shadow: 0 0 8px rgba(255, 0, 127, 0.6); text-transform: uppercase; letter-spacing: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .theme-retro .play-btn { background: transparent; border: 2px solid #ff007f; color: #ff007f; font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 700; padding: 12px 30px; text-transform: uppercase; }
+        .theme-retro .play-btn:hover { background: #ff007f; color: #120924; }
+        .theme-retro .visualizer-container { height: 70px; background: #000; border: 2px solid #331a54; padding: 8px; margin-bottom: 25px; }
+        .theme-retro .station-footer { font-size: 0.8rem; font-weight: 900; color: #9b51e0; text-shadow: 0 0 5px rgba(155, 81, 224, 0.6); border-top: 2px dashed #331a54; padding-top: 20px; letter-spacing: 3px; }
+        .theme-retro .copy-btn { border: 1px solid #ff007f; border-radius: 0; background: transparent; }
+        .theme-retro .copy-btn svg { fill: #ff007f; }
+        .theme-retro .copy-btn:hover svg { fill: #00f2fe; }
+        .theme-retro .volume-icon { fill: #ff007f; }
+        .theme-retro #volumeSlider { background: #331a54; border: 1px solid #ff007f; border-radius: 0; }
+        .theme-retro #volumeSlider::-webkit-slider-thumb { background: #00f2fe; border-radius: 0; width: 12px; height: 12px; }
+        .theme-retro #qualitySelect { background: #120924; border: 2px solid #00f2fe; color: #00f2fe; border-radius: 0; font-family: 'Orbitron', sans-serif; }
+
+        /* 3. PIXEL */
+        body.theme-pixel { background-color: #181425; background-image: linear-gradient(45deg, #26213a 25%, transparent 25%, transparent 75%, #26213a 75%, #26213a), linear-gradient(45deg, #26213a 25%, #181425 25%, #181425 75%, #26213a 75%, #26213a); background-size: 16px 16px; background-position: 0 0, 8px 8px; font-family: 'Press Start 2P', monospace; image-rendering: pixelated; }
+        .theme-pixel .player-card { background: #2c2c2c; border: 4px solid #000; box-shadow: inset -4px -4px 0px #1a1a1a, inset 4px 4px 0px #4a4a4a, 8px 8px 0px rgba(0, 0, 0, 0.4); padding: 24px; }
+        .theme-pixel .cover-wrapper { background: #111; border: 4px solid #000; box-shadow: inset -4px -4px 0px #333, inset 4px 4px 0px #000; padding: 8px; }
+        .theme-pixel .track-title { font-size: 8px; color: #ffca51; margin-bottom: 8px; text-transform: uppercase; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .theme-pixel .track-artist { font-size: 7px; color: #ff3e3e; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .theme-pixel .play-btn { font-family: 'Press Start 2P', monospace; font-size: 9px; background: #5ac54f; color: #fff; border: 4px solid #000; box-shadow: inset -4px -4px 0px #368628, inset 4px 4px 0px #86e07b; padding: 12px 24px; text-transform: uppercase; }
+        .theme-pixel .play-btn:active { box-shadow: inset 4px 4px 0px #368628, inset -4px -4px 0px #86e07b; }
+        .theme-pixel .visualizer-container { height: 48px; background: #000; border: 4px solid #000; padding: 4px; margin-bottom: 20px; }
+        .theme-pixel .station-footer { font-size: 7px; color: #fff; background: #000; border: 4px solid #000; box-shadow: inset -4px -4px 0px #222; padding: 10px 4px; line-height: 1; }
+        .theme-pixel .copy-btn { border: 4px solid #000; border-radius: 0; background: #2c2c2c; box-shadow: inset -2px -2px 0px #1a1a1a; }
+        .theme-pixel .copy-btn svg { fill: #fff; }
+        .theme-pixel .volume-icon { fill: #ffca51; }
+        .theme-pixel #volumeSlider { background: #000; border: 4px solid #000; height: 14px; border-radius: 0; }
+        .theme-pixel #volumeSlider::-webkit-slider-thumb { background: #ff3e3e; border-radius: 0; width: 8px; height: 14px; -webkit-appearance: none; border: 2px solid #000; }
+        .theme-pixel #qualitySelect { background: #000; border: 4px solid #000; color: #ffca51; border-radius: 0; font-family: 'Press Start 2P', monospace; font-size: 7px; }
+    </style>
+</head>
+
+<body class="theme-modern">
+
+    <div class="theme-selector">
+        <button class="theme-btn active" onclick="setTheme('modern')">Modern</button>
+        <button class="theme-btn" onclick="setTheme('retro')">Retro</button>
+        <button class="theme-btn" onclick="setTheme('pixel')">8-Bit</button>
+    </div>
+
+    <div class="player-card">
+        <div class="cover-wrapper">
+            <img src="30152.png" alt="Radio Logo" class="cover-art" id="cover">
+        </div>
+
+        <div class="track-info-container">
+            <div class="track-text">
+                <div class="track-title" id="title">Ładowanie...</div>
+                <div class="track-artist" id="artist">Proszę czekać</div>
+            </div>
+            <button class="copy-btn" id="copyButton" onclick="copyTrack()" title="Kopiuj tytuł">
+                <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            </button>
+        </div>
+
+        <div class="controls">
+            <button class="play-btn" id="playButton">
+                <span id="btnContent"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+            </button>
+            
+            <div class="quality-selector-container">
+                <select id="qualitySelect" onchange="changeQuality(this.value)">
+                    <option value="high">Wysoka jakość (192 kbps)</option>
+                    <option value="mobile">Mobilna (64 kbps)</option>
+                </select>
+            </div>
+
+            <div class="volume-container">
+                <svg viewBox="0 0 24 24" class="volume-icon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" oninput="setVolume(this.value)">
+            </div>
+        </div>
+
+        <div class="visualizer-container">
+            <canvas id="visualizer"></canvas>
+        </div>
+
+        <div class="station-footer">
+            <div id="stationName">SUPER 97.5FM</div>
+            <div class="station-warning">UWAGA!!! STACJA NIE JEST 24/7!</div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        //  KONFIGURACJA STRUMIENI AUDIO (JAKOŚĆ)
+        // ==========================================
+        const STREAMS = {
+            high: "https://superfm-debica.loophole.site/listen/superfm-debica/radio.mp3",
+            mobile: "https://superfm-debica.loophole.site/listen/superfm-debica/mobile.mp3"
+        };
+
+        let currentStreamUrl = STREAMS.high;
+        let currentTheme = 'modern';
+        
+        const playButton = document.getElementById('playButton');
+        const btnContent = document.getElementById('btnContent');
+        const canvas = document.getElementById('visualizer');
+        const ctx = canvas.getContext('2d');
+
+        const trackTitle = document.getElementById('title');
+        const trackArtist = document.getElementById('artist');
+        const trackCover = document.getElementById('cover');
+        const stationFooter = document.getElementById('stationName');
+
+        let audio, audioCtx, analyser, source, bufferLength, dataArray;
+        let isPlaying = false;
+        let isInitialized = false;
+
+        // --- POBIERANIE TYTUŁÓW ---
+        function pobierzTytuly() {
+            const urlBezCORS = "https://superfm-debica.loophole.site/api/nowplaying/1?t=" + new Date().getTime();
+
+            fetch(urlBezCORS, {
+                method: 'GET',
+                mode: 'cors',
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Problem z odpowiedzią serwera");
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.now_playing && data.now_playing.song) {
+                    const song = data.now_playing.song;
+                    trackTitle.innerText = song.title || "Live Stream";
+                    trackArtist.innerText = song.artist || "ON AIR";
+                    if (song.art && song.art !== "") {
+                        trackCover.src = song.art;
+                    }
+                }
+                if (data && data.station && data.station.name) {
+                    stationFooter.innerText = data.station.name;
+                }
+            })
+            .catch(err => {
+                if(trackTitle.innerText === "Ładowanie...") {
+                    trackTitle.innerText = "SUPER 97.5FM";
+                    trackArtist.innerText = "NA ŻYWO";
+                }
+            });
+        }
+
+        pobierzTytuly();
+        setInterval(pobierzTytuly, 15000);
+
+        // --- FUNKCJA KOPIOWANIA ---
+        function copyTrack() {
+            const title = trackTitle.innerText;
+            const artist = trackArtist.innerText;
+            const textToCopy = `${artist} - ${title}`;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => animacjaSukcesu())
+                    .catch(() => metodaAwaryjnaKopiowania(textToCopy));
+            } else {
+                metodaAwaryjnaKopiowania(textToCopy);
+            }
+        }
+
+        function metodaAwaryjnaKopiowania(tekst) {
+            const tempInput = document.createElement("textarea");
+            tempInput.value = tekst;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand("copy");
+                animacjaSukcesu();
+            } catch (err) {
+                console.error("Błąd kopiowania:", err);
+            }
+            document.body.removeChild(tempInput);
+        }
+
+        function animacjaSukcesu() {
+            const copyBtn = document.getElementById('copyButton');
+            if (copyBtn) {
+                copyBtn.classList.add('copied');
+                setTimeout(() => copyBtn.classList.remove('copied'), 2000);
+            }
+        }
+
+        // --- ZMIANA JAKOŚCI ---
+        function changeQuality(quality) {
+            currentStreamUrl = STREAMS[quality];
+            if (isPlaying) {
+                audio.pause();
+                audio.src = currentStreamUrl;
+                audio.load();
+                audio.play().catch(err => console.error(err));
+            }
+        }
+
+        // --- ZMIANA GŁOŚNOŚCI ---
+        function setVolume(val) {
+            if (audio) audio.volume = val;
+        }
+
+        // --- MOTYWY ---
+        function setTheme(themeName) {
+            currentTheme = themeName;
+            document.body.className = '';
+            document.body.classList.add('theme-' + themeName);
+
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText.toLowerCase().includes(themeName === 'pixel' ? '8-bit' : themeName)) {
+                    btn.classList.add('active');
+                }
+            });
+            updateButtonUI();
+        }
+
+        function updateButtonUI() {
+            if (currentTheme === 'modern') {
+                btnContent.innerHTML = isPlaying 
+                    ? `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`
+                    : `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+            } else if (currentTheme === 'retro') {
+                btnContent.innerHTML = isPlaying ? "STOP" : "PLAY";
+            } else if (currentTheme === 'pixel') {
+                btnContent.innerHTML = isPlaying ? "PAUSE" : "START";
+            }
+        }
+
+        function initAudio() {
+            audio = new Audio();
+            audio.src = currentStreamUrl;
+            audio.crossOrigin = "anonymous";
+            audio.volume = document.getElementById('volumeSlider').value;
+
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            
+            source = audioCtx.createMediaElementSource(audio);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+
+            isInitialized = true;
+        }
+
+        function draw() {
+            if (!isPlaying) return;
+            requestAnimationFrame(draw);
+
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+
+            analyser.fftSize = (currentTheme === 'pixel') ? 32 : 64;
+            bufferLength = analyser.frequencyBinCount;
+            if(!dataArray || dataArray.length !== bufferLength) {
+                dataArray = new Uint8Array(bufferLength);
+            }
+
+            analyser.getByteFrequencyData(dataArray);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const barWidth = canvas.width / bufferLength;
+            let x = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                let rawHeight = dataArray[i];
+
+                if (currentTheme === 'modern') {
+                    let barHeight = rawHeight * 0.22;
+                    ctx.fillStyle = `rgba(0, 242, 254, ${barHeight / canvas.height + 0.3})`;
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+                    x += barWidth;
+
+                } else if (currentTheme === 'retro') {
+                    let barHeight = rawHeight * 0.25;
+                    const segH = 4, segGap = 2;
+                    const totalSegments = Math.floor(barHeight / (segH + segGap));
+
+                    for (let j = 0; j < totalSegments; j++) {
+                        const yPos = canvas.height - (j * (segH + segGap));
+                        if (j < 5) ctx.fillStyle = "#39ff14";
+                        else if (j < 9) ctx.fillStyle = "#ffff00";
+                        else ctx.fillStyle = "#ff0033";
+                        ctx.fillRect(x, yPos - segH, barWidth - 3, segH);
+                    }
+                    x += barWidth;
+
+                } else if (currentTheme === 'pixel') {
+                    let barHeight = Math.floor((rawHeight * 0.2) / 4) * 4;
+                    ctx.fillStyle = "#00ccff";
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth - 4, barHeight);
+                    x += barWidth;
+                }
+            }
+        }
+
+        playButton.addEventListener('click', function() {
+            if (!isInitialized) initAudio();
+
+            if (!isPlaying) {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    updateButtonUI();
+                    draw();
+                }).catch(err => console.error("Błąd odtwarzania:", err));
+            } else {
+                audio.pause();
+                audio.src = currentStreamUrl; 
+                isPlaying = false;
+                updateButtonUI();
+            }
+        });
+    </script>
+</body>
+</html>
